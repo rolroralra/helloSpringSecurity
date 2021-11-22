@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
@@ -21,39 +23,49 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) {
         web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .and()
-            .ignoring()
-                .requestMatchers(PathRequest.toH2Console());
+                .and();
+//            .ignoring()
+//                .requestMatchers(PathRequest.toH2Console());
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
-            .authorizeRequests()
+                .authorizeRequests()
                 .antMatchers("/", "/home").permitAll()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                 .anyRequest().authenticated()
                 .and()
             .formLogin()
                 .loginPage("/login")
-                .permitAll()
-                .and()
-            .logout()
-                .logoutUrl("/logout")
+                .successForwardUrl("/")
+                .failureForwardUrl("/login?error=true")
                 .permitAll();
+//                .and()
+//            .logout()
+////                .logoutUrl("/logout")
+//                .permitAll();
     }
 
     @Bean
-    @Override
-    @SuppressWarnings("deprecation")
-    protected UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withDefaultPasswordEncoder()
-                        .username("admin")
-                        .password("admin")
-                        .roles("USER", "ADMIN")
-                        .build();
+    UserDetailsService users() {
+        UserDetails user = User.builder()
+                .username("rolroralra")
+                .password(passwordEncoder().encode("chrlghk123#"))
+                .roles("USER")
+                .build();
 
-        return new InMemoryUserDetailsManager(user);
+        UserDetails admin = User.builder()
+                .username("admin")
+                .password(passwordEncoder().encode("admin"))
+                .roles("ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(user, admin);
+    }
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }

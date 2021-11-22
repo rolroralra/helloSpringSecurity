@@ -16,9 +16,15 @@ spring:
     username: sa
     password:
 
-  h2:
-    console:
-      enabled: true
+#  h2:
+#    console:
+#      enabled: true
   web:
     resources:
       static-locations:
+#
+#  security:
+#    user:
+#      name: admin
+#      password: admin
+#      roles: USER, ADMIN
