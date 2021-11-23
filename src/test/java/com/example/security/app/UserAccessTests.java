@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -49,7 +50,16 @@ public class UserAccessTests {
     }
 
     @Order(2)
-    @DisplayName("2. admin이 admin 페이지를 접근할 수 있다.")
+    @DisplayName("2. user가 admin 페이지를 접근할 수 없다.")
+    @Test
+    @WithMockUser(username = "user")
+    void test_user_cannot_access_admin_page() throws Exception {
+        mockMvc.perform(get("/admin"))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Order(3)
+    @DisplayName("3. admin이 admin 페이지를 접근할 수 있다.")
     @Test
     @WithMockUser(username = "admin", roles = {"ADMIN"})
     void test_admin_can_access_admin_page() throws Exception {
@@ -61,8 +71,21 @@ public class UserAccessTests {
         assertThat(securityMessage.getMessage()).isEqualTo("admin page");
     }
 
-    @Order(3)
-    @DisplayName("3. test-user가 user 페이지를 접근할 수 없다.")
+    @Order(4)
+    @DisplayName("4. admin이 user 페이지를 접근할 수 있다.")
+    @Test
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    void test_admin_can_access_user_page() throws Exception {
+        String response = mockMvc.perform(get("/user"))
+                .andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+
+        SecurityMessage securityMessage = objectMapper.readValue(response, SecurityMessage.class);
+        assertThat(securityMessage.getMessage()).isEqualTo("user page");
+    }
+
+    @Order(5)
+    @DisplayName("5. test-user가 user 페이지를 접근할 수 없다.")
     @Test
     void test_no_auth_cannot_access_user_page() throws Exception {
         mockMvc.perform(get("/user").with(user(testUser())))
@@ -72,13 +95,20 @@ public class UserAccessTests {
                 .andExpect(status().is4xxClientError());
     }
 
-    @Order(4)
-    @DisplayName("4. user가 admin 페이지를 접근할 수 없다.")
+    @Order(6)
+    @DisplayName("6. anonymous-user가 login 페이지를 접근할 수 있다.")
     @Test
-    @WithMockUser(username = "user")
-    void test_user_cannot_access_admin_page() throws Exception {
-        mockMvc.perform(get("/admin"))
-                .andExpect(status().is4xxClientError());
+    @WithAnonymousUser
+    void test_anonymous_user_can_access_login_page() throws Exception {
+        mockMvc.perform(get("/login"))
+                .andExpect(status().isOk());
     }
 
+    @Order(7)
+    @DisplayName("7. index 페이지는 로그인이 필요하다.")
+    @Test
+    void test_index_page_need_to_authentication() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().is3xxRedirection());
+    }
 }

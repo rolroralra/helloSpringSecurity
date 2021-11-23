@@ -5,6 +5,18 @@
     <title>Login</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
     <link href="https://getbootstrap.com/docs/4.0/examples/signin/signin.css" rel="stylesheet" crossorigin="anonymous">
+    <link href="/static/css/login.css" type="text/css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-1.4.4.min.js"></script>
+    <script>
+        $(document).ready(() => {
+            let error = document.getElementById("errormessage");
+            if (error) {
+                setTimeout(() => {
+                    error.remove();
+                }, 3000);
+            }
+        })
+    </script>
 </head>
 <body>
 <div class="container">
@@ -18,6 +30,7 @@
             <label for="password" class="sr-only">Password</label>
             <input type="password" id="password" name="password" class="form-control" placeholder="Password" required="">
         </p>
+        <p id="errormessage" class="error-message" th:text="${errorMessage}"></p>
         <input name="_csrf" type="hidden" value="92af6f67-157d-4239-9dfd-27c61fbddfea">
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
     </form>

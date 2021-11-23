@@ -22,8 +22,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) {
         web.ignoring()
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .and();
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+//            .and()
 //            .ignoring()
 //                .requestMatchers(PathRequest.toH2Console());
     }
@@ -32,13 +32,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/", "/home").permitAll()
+                .antMatchers("/login").permitAll()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/").authenticated()
                 .and()
             .formLogin()
                 .loginPage("/login")
-                .successForwardUrl("/")
+//                .successForwardUrl("/")   // requestCache
                 .failureForwardUrl("/login?error=true")
                 .permitAll();
 //                .and()
