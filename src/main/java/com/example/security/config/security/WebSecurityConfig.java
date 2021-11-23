@@ -33,18 +33,17 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/login").permitAll()
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                .antMatchers("/").authenticated()
+                .anyRequest().authenticated()
                 .and()
             .formLogin()
                 .loginPage("/login")
 //                .successForwardUrl("/")   // requestCache
                 .failureForwardUrl("/login?error=true")
+                .permitAll()
+                .and()
+            .logout()
+//                .logoutUrl("/logout")
                 .permitAll();
-//                .and()
-//            .logout()
-////                .logoutUrl("/logout")
-//                .permitAll();
     }
 
     @Bean
