@@ -3,6 +3,8 @@ package com.example.security.app;
 import com.example.security.domain.SecurityMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.security.core.userdetails.User;
@@ -15,6 +17,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
@@ -27,15 +31,6 @@ public class UserAccessTests {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    private UserDetails testUser() {
-        return User.builder()
-                .username("test")
-                .password(passwordEncoder.encode("1234"))
-                .roles("TEST")
-                .build();
-    }
-
-    // https://www.youtube.com/watch?v=MNEgiFeUy_U
     @Order(1)
     @DisplayName("1. user가 user 페이지를 접근할 수 있다.")
     @Test
@@ -110,5 +105,29 @@ public class UserAccessTests {
     void test_index_page_need_to_authentication() throws Exception {
         mockMvc.perform(get("/"))
                 .andExpect(status().is3xxRedirection());
+    }
+
+    @Order(8)
+    @DisplayName("8. 비밀번호 오류 로그인")
+    @ParameterizedTest
+    @CsvSource(value = {"rolroralra:1234", "admin:1234"}, delimiterString = ":")
+    void test_login_with_wrong_password(String username, String password) throws Exception {
+        mockMvc.perform(post("/login")
+                        .param("username", username)
+                        .param("password", password))
+                .andExpect(status().isOk())
+                .andExpect(forwardedUrl("/login?error=true"));
+    }
+
+    private UserDetails generateUser(String username, String password, String... roles) {
+        return User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(password))
+                .roles(roles)
+                .build();
+    }
+
+    private UserDetails testUser() {
+        return generateUser("test", "1234", "TEST");
     }
 }

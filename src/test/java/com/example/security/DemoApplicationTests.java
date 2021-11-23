@@ -32,7 +32,7 @@ class DemoApplicationTests {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"/", "/home", "/login"})
+	@ValueSource(strings = {"/login"})
 	void test_200_OK(String requestPath) throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders.get(requestPath))
 				.andExpect(status().isOk());
