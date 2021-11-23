@@ -119,6 +119,14 @@ public class UserAccessTests {
                 .andExpect(forwardedUrl("/login?error=true"));
     }
 
+    @Order(9)
+    @DisplayName("9. 로그인 비밀번호 오류로 인한 로그인 페이지 화면")
+    @Test
+    void test_login_page_with_wrong_password_error_message() throws Exception {
+        mockMvc.perform(get("/login?error=true"))
+                .andExpect(status().isOk());
+    }
+
     private UserDetails generateUser(String username, String password, String... roles) {
         return User.builder()
                 .username(username)
