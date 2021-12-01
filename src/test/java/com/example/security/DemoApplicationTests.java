@@ -56,7 +56,7 @@ class DemoApplicationTests {
 	@Order(4)
 	@DisplayName("4. 올바른 username, password를 통해 정상적으로 로그인 할 수 있다.")
 	@ParameterizedTest
-	@CsvSource(value = {"rolroralra:chrlghk123#", "admin:admin"}, delimiterString = ":")
+	@CsvSource(value = {"rolroralra:password", "admin:admin"}, delimiterString = ":")
 	void test_login(String username, String password) throws Exception {
 		mockMvc.perform(
 				MockMvcRequestBuilders
